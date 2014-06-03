@@ -4,9 +4,15 @@ version: ${project.version}
 author: Compressions
 commands:
     sell:
+      description: Sell items
     balance:
+      description: Check your balance
       aliases: [bal]
     deposit:
+      description: Deposit gold into your account
     withdraw:
+      description: Withdraw gold from your account
     buy:
+      description: Buy items
     price:
+      description: Check the price of items
