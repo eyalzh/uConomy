@@ -62,7 +62,7 @@ public class SaleUtils {
                 for(Sale sale : sales) {
 
                     if(sale.getMaterial() == material) {
-
+                    	
                         prices.add(sale.getPrice());
 
                     }
@@ -72,9 +72,9 @@ public class SaleUtils {
             }
 
         }.runTaskAsynchronously(uConomy.getInstance());
-
+        
         Collections.sort(prices);
-
+        
         if(prices.isEmpty()) return list;
 
         if(prices.size() < amount) {

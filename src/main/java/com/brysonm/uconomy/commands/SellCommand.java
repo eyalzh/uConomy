@@ -14,7 +14,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SellCommand implements CommandExecutor {
 
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    private static final String ITEMINHAND_KEYWORD = "iteminhand";
+
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if(sender instanceof Player) {
 
             final Player player = (Player) sender;
@@ -41,23 +43,25 @@ public class SellCommand implements CommandExecutor {
 
                     }
 
-                    final Material material = Material.matchMaterial(args[1].toUpperCase());
+                    final String item = args[1];
+                    
+                    final Material material = getMaterialToSell(player, item);
 
-                    if(material == null) {
+        		    if(material == null) {
 
-                        player.sendMessage(ChatColor.RED + "Item '" + args[1] + "' not found.");
+        		        player.sendMessage(ChatColor.RED + "You cannot sell this item.");
 
-                        return true;
+        		        return true;
 
-                    }
-
+        		    }                     
+                    
                     double price = Double.parseDouble(args[2]);
 
                     int count = 0;
 
                     for(ItemStack is : player.getInventory().getContents()) {
 
-                        if(is != null && is.getType() == material && is.getData().getData() == 0x0) {
+                        if(is != null && is.getType() == material && isSellable(is)) {
 
                             count += is.getAmount();
 
@@ -97,7 +101,7 @@ public class SellCommand implements CommandExecutor {
 
                 } catch(NumberFormatException ex) {
 
-                    player.sendMessage(ChatColor.RED + "/sell <amount> <item> <price>");
+                    printSellCommandUsage(player);
 
                     return true;
 
@@ -105,7 +109,7 @@ public class SellCommand implements CommandExecutor {
 
             } else {
 
-                player.sendMessage(ChatColor.RED + "/sell <amount> <item> <price>");
+                printSellCommandUsage(player);
 
                 return true;
 
@@ -114,5 +118,38 @@ public class SellCommand implements CommandExecutor {
         }
         return true;
     }
+
+	private static void printSellCommandUsage(final Player player) {
+		
+		player.sendMessage(ChatColor.RED + "/sell <amount> <item> <price>");
+		player.sendMessage(ChatColor.RED + "or");
+		player.sendMessage(ChatColor.RED + "/sell <amount> " + ITEMINHAND_KEYWORD + " <price>");
+		
+	}
+
+	private static Material getMaterialToSell(final Player player, final String item) {
+		
+		Material material = null;
+		
+		if(item.equalsIgnoreCase(ITEMINHAND_KEYWORD)) {
+			
+			if (isSellable(player.getItemInHand())) {
+				material = player.getItemInHand().getType();
+			}
+			
+		} else {
+			
+			material = Material.matchMaterial(item.toUpperCase());
+			
+		}
+		
+		return material;
+		
+	}
+
+	private static boolean isSellable(ItemStack itemStack) {
+		return itemStack.getData().getData() == 0x0 
+				&& ! itemStack.hasItemMeta();
+	}
 
 }
